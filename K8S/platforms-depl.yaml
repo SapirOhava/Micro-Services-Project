@@ -1,0 +1,42 @@
+# that's specify the api version that this deployment file is going to use
+# kubernetes actually works with a rest api to create and destroy its own resources
+# so thats basically what we are specifiying.
+#the --- in the end, just separate the deployment from the cluster ip config.
+#its just lets us put this 2 different configuration in the same file.
+apiVersion: apps/v1
+# what kind is it
+kind: Deployment
+# this is the name of our deployment
+metadata:
+  name: platforms-depl
+# thats where we specify our pod , the replicas if for scale out the number of service that run,
+# horizontally.
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: platformservice
+  template:
+    metadata:
+      labels:
+        app: platformservice
+    spec:
+      containers:
+        - name: platformservice
+          image: sapirohava/platformservice:latest
+---
+apiVersion: v1
+kind: Service
+metadata:
+  #basically the name of our service
+  name: platforms-clusterip-srv
+spec:
+  type: ClusterIP
+  selector:
+    app: platformservice
+  ports:
+    #its an array , we give it a name( we give it the same name just for comfort )
+    - name: platformservice
+      protocol: TCP
+      port: 80
+      targetPort: 80
